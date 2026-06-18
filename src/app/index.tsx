@@ -1,98 +1,74 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
-
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
+import { track } from '@/services/analytics';
+import { setLanguage, type Language } from '@/i18n';
+import { Button } from '@/shared/ui/button';
+import { Brand } from '@/shared/ui/brand';
 
 export default function HomeScreen() {
+  const { t, i18n } = useTranslation();
+  const router = useRouter();
+
+  useEffect(() => {
+    track({ name: 'app_open' });
+  }, []);
+
+  const toggleLang = () => setLanguage((i18n.language === 'vi' ? 'en' : 'vi') as Language);
+
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+    <SafeAreaView style={styles.root}>
+      <View style={styles.langRow}>
+        <Pressable accessibilityRole="button" onPress={toggleLang} style={styles.langPill}>
+          <Text style={styles.langText}>{i18n.language === 'vi' ? 'Tiếng Việt' : 'English'}</Text>
+        </Pressable>
+      </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+      <View style={styles.hero}>
+        <View style={styles.logo}>
+          <Text style={styles.logoMark}>₫</Text>
+        </View>
+        <Text style={styles.title}>{t('appName')}</Text>
+        <Text style={styles.tagline}>{t('tagline')}</Text>
+      </View>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+      <View style={styles.actions}>
+        <Button label={t('newGame')} onPress={() => router.push('/setup')} />
+        <Button label={t('joinCode')} variant="outline" onPress={() => router.push('/setup')} />
+        <Text style={styles.howTo}>{t('howToPlay')} ›</Text>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
+  root: { flex: 1, paddingHorizontal: 28, justifyContent: 'space-between', paddingBottom: 36 },
+  langRow: { alignItems: 'flex-end', paddingTop: 8 },
+  langPill: {
+    borderWidth: 1,
+    borderColor: Brand.line,
+    borderRadius: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    backgroundColor: Brand.paper,
   },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
+  langText: { fontSize: 13, fontWeight: '700', color: Brand.ink },
+  hero: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
+  logo: {
+    width: 64,
+    height: 64,
+    borderRadius: 18,
+    backgroundColor: Brand.red,
     alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
     justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+    transform: [{ rotate: '-6deg' }],
   },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
+  logoMark: { color: Brand.paper, fontSize: 36, fontWeight: '900' },
+  title: { fontSize: 36, fontWeight: '800', color: Brand.ink, textAlign: 'center' },
+  tagline: { fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', color: Brand.muted },
+  actions: { gap: 12 },
+  howTo: { textAlign: 'center', color: Brand.red, fontWeight: '600', marginTop: 6 },
 });

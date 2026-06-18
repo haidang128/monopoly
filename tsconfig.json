@@ -8,6 +8,12 @@
       ],
       "@/assets/*": [
         "./assets/*"
+      ],
+      "@monopoly/engine": [
+        "./packages/engine/src/index.ts"
+      ],
+      "@monopoly/engine/*": [
+        "./packages/engine/src/*"
       ]
     }
   },
