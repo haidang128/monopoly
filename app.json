@@ -47,6 +47,17 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "appEnv": "development",
+      "convexUrl": {},
+      "analyticsKey": {},
+      "sentryDsn": {},
+      "router": {},
+      "eas": {
+        "projectId": "d3969197-3a8c-4232-bbd4-becf8b2bec84"
+      }
+    },
+    "owner": "haidang812"
   }
 }
