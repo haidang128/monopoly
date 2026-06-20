@@ -17,7 +17,9 @@ let started = false;
 export function initObservability(): void {
   if (started) return;
   started = true;
-  if (!config.sentryDsn) return;
+  // Require a real DSN string — a non-string (e.g. a stray `{}` from config
+  // tooling) would crash the native SDK trying to parse it as a URL.
+  if (typeof config.sentryDsn !== 'string' || config.sentryDsn.length === 0) return;
   Sentry.init({
     dsn: config.sentryDsn,
     environment: config.env,
@@ -28,7 +30,7 @@ export function initObservability(): void {
 
 /** Report a handled error. No-op without a DSN; never throws. */
 export function captureError(error: unknown, context?: Record<string, unknown>): void {
-  if (!config.sentryDsn) return;
+  if (typeof config.sentryDsn !== 'string' || config.sentryDsn.length === 0) return;
   try {
     Sentry.captureException(error, context ? { extra: context } : undefined);
   } catch {

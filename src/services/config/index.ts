@@ -23,6 +23,17 @@ function asUrl(value: unknown): string | null {
   return typeof value === 'string' && value.includes('://') ? value : null;
 }
 
+/**
+ * Coerce to a non-empty string, else null. Critical: build tooling can leave a
+ * key as an empty object `{}` in `extra` (e.g. a null from `app.config.ts` that
+ * doesn't override a `{}` baked into `app.json`). A truthy `{}` slipping through
+ * as a "value" caused a native crash (Sentry was init'd with `dsn: {}`), so every
+ * optional string config goes through this guard.
+ */
+function asString(value: unknown): string | null {
+  return typeof value === 'string' && value.length > 0 ? value : null;
+}
+
 export const config = {
   env: (extra.appEnv ?? 'development') as AppEnv,
   /**
@@ -32,8 +43,8 @@ export const config = {
    * does not reliably do during static server rendering.
    */
   convexUrl: asUrl(process.env.EXPO_PUBLIC_CONVEX_URL) ?? asUrl(extra.convexUrl),
-  analyticsKey: extra.analyticsKey ?? null,
-  sentryDsn: extra.sentryDsn ?? null,
+  analyticsKey: asString(process.env.EXPO_PUBLIC_ANALYTICS_KEY) ?? asString(extra.analyticsKey),
+  sentryDsn: asString(process.env.EXPO_PUBLIC_SENTRY_DSN) ?? asString(extra.sentryDsn),
 } as const;
 
 export const isProd = config.env === 'production';
