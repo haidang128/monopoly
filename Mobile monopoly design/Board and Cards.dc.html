@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700;800;900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box;}body{margin:0;}</style>
+</helmet>
+
+<div style="min-height:100vh;background:#E7E0D2;padding:56px 48px 110px;font-family:'Be Vietnam Pro',system-ui,sans-serif;color:#211C16;">
+  <div style="max-width:1010px;margin:0 auto;">
+
+    <!-- HEADER -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:22px;">
+      <div style="display:flex;align-items:center;gap:18px;">
+        <div style="width:62px;height:62px;border-radius:18px;background:#B23A2C;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 22px rgba(178,58,44,0.32);transform:rotate(-6deg);flex:none;"><span style="font-family:'Playfair Display',serif;font-weight:900;font-size:36px;color:#FCF8F0;">₫</span></div>
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-weight:800;font-size:44px;letter-spacing:-0.01em;line-height:0.92;">Cờ Tỷ Phú Việt</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:11px;color:#7A6E5C;letter-spacing:0.16em;text-transform:uppercase;margin-top:9px;">{{ t.headerSub }}</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:10px;letter-spacing:0.14em;color:#A0917A;text-transform:uppercase;">{{ t.language }}</span>
+        <div style="display:flex;gap:4px;background:#EFE7D6;border:1px solid #E0D2B4;border-radius:13px;padding:4px;">
+          <div onClick="{{ setVi }}" style="{{ segVi }}">Tiếng Việt</div>
+          <div onClick="{{ setEn }}" style="{{ segEn }}">English</div>
+        </div>
+      </div>
+    </div>
+    <div style="height:2px;background:#D3C8B5;margin:30px 0 0;"></div>
+
+    <!-- ============ THE BOARD ============ -->
+    <div style="display:flex;align-items:baseline;gap:14px;margin-top:34px;">
+      <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:27px;">{{ t.boardTitle }}</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:11px;color:#A0917A;letter-spacing:0.12em;text-transform:uppercase;">{{ t.boardSub }}</div>
+    </div>
+
+    <div style="margin-top:26px;display:flex;justify-content:center;">
+      <div style="width:956px;flex:none;background:#1E1913;border-radius:18px;padding:10px;box-shadow:0 30px 70px rgba(33,28,22,0.34);border:1px solid #0E0B07;">
+        <div style="width:100%;aspect-ratio:1;display:grid;grid-template-columns:128px repeat(9,1fr) 128px;grid-template-rows:128px repeat(9,1fr) 128px;gap:1.5px;background:#C9BDA4;border-radius:10px;overflow:hidden;">
+
+          <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="40">
+            <div style="grid-row:{{ t.gr }};grid-column:{{ t.gc }};position:relative;background:{{ t.bg }};overflow:hidden;">
+              <sc-if value="{{ t.band }}" hint-placeholder-val="{{ true }}"><div style="{{ t.band }}"></div></sc-if>
+              <sc-if value="{{ t.houses }}" hint-placeholder-val="{{ true }}">
+                <div style="position:absolute;top:4px;left:0;right:0;display:flex;gap:2px;justify-content:center;z-index:3;">
+                  <sc-for list="{{ t.houses }}" as="h" hint-placeholder-count="3"><span style="width:7px;height:7px;border-radius:1.5px;background:{{ h.c }};border:0.5px solid rgba(0,0,0,0.3);"></span></sc-for>
+                </div>
+              </sc-if>
+              <div style="{{ t.content }}">
+                <sc-if value="{{ t.icon }}" hint-placeholder-val="{{ true }}"><div style="{{ t.iconStyle }}">{{ t.icon }}</div></sc-if>
+                <sc-if value="{{ t.icGo }}" hint-placeholder-val="{{ true }}">
+                  <div style="position:relative;width:24px;height:14px;margin-bottom:3px;transform:rotate(180deg);">
+                    <div style="position:absolute;top:5px;left:0;width:15px;height:4px;background:{{ t.iconColor }};border-radius:2px;"></div>
+                    <div style="position:absolute;top:0;right:0;width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:10px solid {{ t.iconColor }};"></div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ t.icCuff }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;align-items:center;margin-bottom:3px;">
+                    <div style="width:11px;height:11px;border:2.5px solid {{ t.iconColor }};border-radius:50%;"></div>
+                    <div style="width:7px;height:2.5px;background:{{ t.iconColor }};"></div>
+                    <div style="width:11px;height:11px;border:2.5px solid {{ t.iconColor }};border-radius:50%;"></div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ t.icPark }}" hint-placeholder-val="{{ true }}">
+                  <div style="width:24px;height:24px;border-radius:7px;background:{{ t.iconColor }};display:flex;align-items:center;justify-content:center;margin-bottom:3px;"><span style="font-family:'Playfair Display',serif;font-weight:800;font-size:16px;color:#FBF7EE;">P</span></div>
+                </sc-if>
+                <sc-if value="{{ t.icJail }}" hint-placeholder-val="{{ true }}">
+                  <div style="display:flex;justify-content:center;align-items:stretch;gap:2.5px;width:22px;height:18px;border:2px solid {{ t.iconColor }};border-radius:3px;padding:2px;margin-bottom:3px;">
+                    <span style="width:2px;background:{{ t.iconColor }};border-radius:1px;"></span><span style="width:2px;background:{{ t.iconColor }};border-radius:1px;"></span><span style="width:2px;background:{{ t.iconColor }};border-radius:1px;"></span>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ t.icTrain }}" hint-placeholder-val="{{ true }}">
+                  <div style="position:relative;width:26px;height:18px;margin-bottom:2px;">
+                    <div style="position:absolute;left:2px;top:0;width:22px;height:12px;background:{{ t.iconColor }};border-radius:4px 7px 3px 3px;"></div>
+                    <div style="position:absolute;left:4px;top:2px;width:6px;height:5px;background:{{ t.bg }};border-radius:1px;"></div>
+                    <div style="position:absolute;left:12px;top:2px;width:9px;height:5px;background:{{ t.bg }};border-radius:1px;"></div>
+                    <div style="position:absolute;left:4px;top:12px;width:5px;height:5px;border-radius:50%;background:{{ t.iconColor }};"></div>
+                    <div style="position:absolute;left:16px;top:12px;width:5px;height:5px;border-radius:50%;background:{{ t.iconColor }};"></div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ t.icBolt }}" hint-placeholder-val="{{ true }}">
+                  <div style="width:13px;height:19px;background:{{ t.iconColor }};clip-path:polygon(62% 0,0 60%,40% 60%,30% 100%,100% 40%,52% 40%);margin-bottom:3px;"></div>
+                </sc-if>
+                <sc-if value="{{ t.icDrop }}" hint-placeholder-val="{{ true }}">
+                  <div style="width:14px;height:14px;background:{{ t.iconColor }};border-radius:0 50% 50% 50%;transform:rotate(45deg);margin:1px 0 5px;"></div>
+                </sc-if>
+                <sc-if value="{{ t.icCoin }}" hint-placeholder-val="{{ true }}">
+                  <div style="width:19px;height:19px;border-radius:50%;background:{{ t.iconColor }};display:flex;align-items:center;justify-content:center;margin-bottom:3px;border:1.5px solid rgba(0,0,0,0.12);"><span style="font-family:'Playfair Display',serif;font-weight:800;font-size:11px;color:#FBF7EE;">₫</span></div>
+                </sc-if>
+                <sc-if value="{{ t.icGem }}" hint-placeholder-val="{{ true }}">
+                  <div style="width:15px;height:15px;background:{{ t.iconColor }};transform:rotate(45deg);border-radius:2px;margin-bottom:6px;box-shadow:inset 0 0 0 2px rgba(255,255,255,0.28);"></div>
+                </sc-if>
+                <div style="{{ t.nameStyle }}">{{ t.name }}</div>
+                <sc-if value="{{ t.sub }}" hint-placeholder-val="{{ true }}"><div style="{{ t.subStyle }}">{{ t.sub }}</div></sc-if>
+              </div>
+              <sc-if value="{{ t.token }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;bottom:4px;right:4px;width:11px;height:11px;border-radius:50%;background:{{ t.token }};border:1.5px solid #FBF7EE;box-shadow:0 1px 2px rgba(0,0,0,0.4);z-index:4;"></div></sc-if>
+            </div>
+          </sc-for>
+
+          <!-- CENTER -->
+          <div style="grid-row:2/11;grid-column:2/11;position:relative;background:radial-gradient(circle at 50% 44%,#F4EBD7,#E7DAC0);display:flex;align-items:center;justify-content:center;overflow:hidden;">
+            <div style="position:absolute;inset:13%;border-radius:10px;background:repeating-linear-gradient(135deg,#E8DCC3,#E8DCC3 10px,#DFD0B2 10px,#DFD0B2 20px);border:1px solid #D8C8A6;opacity:0.55;display:flex;align-items:flex-end;justify-content:center;padding-bottom:14px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.16em;color:#9a8a64;text-transform:uppercase;">{{ t.mapLabel }}</span></div>
+            <div style="position:absolute;top:11%;left:9%;width:23%;height:23%;border:2px dashed #C49A48;border-radius:8px;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;background:rgba(252,248,240,0.55);">
+              <div style="transform:rotate(45deg);display:flex;flex-direction:column;align-items:center;gap:6px;">
+                <span style="font-family:'Playfair Display',serif;font-weight:800;font-size:13px;color:#9a6a2a;letter-spacing:0.04em;white-space:nowrap;">{{ t.deckChance }}</span>
+                <span style="font-family:'Playfair Display',serif;font-weight:900;font-size:20px;line-height:1;color:#C49A48;">?</span>
+              </div>
+            </div>
+            <div style="position:absolute;bottom:11%;right:9%;width:23%;height:23%;border:2px dashed #2E6E5E;border-radius:8px;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;background:rgba(252,248,240,0.55);">
+              <div style="transform:rotate(45deg);display:flex;flex-direction:column;align-items:center;gap:7px;">
+                <span style="font-family:'Playfair Display',serif;font-weight:800;font-size:13px;color:#2E6E5E;letter-spacing:0.04em;white-space:nowrap;">{{ t.deckFate }}</span>
+                <span style="width:13px;height:13px;background:#2E6E5E;transform:rotate(45deg);"></span>
+              </div>
+            </div>
+            <div style="position:relative;transform:rotate(-32deg);background:#B23A2C;border:3px solid #1E1913;border-radius:10px;padding:18px 38px;box-shadow:0 12px 28px rgba(33,28,22,0.38);text-align:center;z-index:2;">
+              <div style="font-family:'Playfair Display',serif;font-weight:900;font-size:46px;line-height:0.9;color:#FCF8F0;letter-spacing:0.01em;">CỜ TỶ PHÚ</div>
+              <div style="font-family:'Be Vietnam Pro';font-weight:800;font-size:15px;letter-spacing:0.42em;color:#F1D9A6;margin-top:6px;padding-left:0.42em;">VIỆT NAM</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;font-size:13px;color:#9a6a2a;font-style:italic;margin-top:18px;">{{ t.note }}</div>
+
+    <!-- ============ TITLE DEEDS ============ -->
+    <div style="display:flex;align-items:baseline;gap:14px;margin-top:62px;">
+      <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:27px;">{{ t.deedsTitle }}</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:11px;color:#A0917A;letter-spacing:0.12em;text-transform:uppercase;">{{ t.deedsSub }}</div>
+    </div>
+    <div style="display:flex;gap:16px;width:max-content;max-width:100%;margin:26px auto 0;">
+      <sc-for list="{{ deeds }}" as="d" hint-placeholder-count="4">
+        <div style="width:190px;flex:none;background:#FCF8F0;border-radius:14px;overflow:hidden;box-shadow:0 16px 36px rgba(33,28,22,0.18);border:1px solid #E4DAC8;">
+          <div style="background:{{ d.color }};padding:16px 16px 14px;text-align:center;position:relative;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:0.2em;color:rgba(255,255,255,0.82);text-transform:uppercase;">{{ d.group }}</div>
+            <div style="font-family:'Playfair Display',serif;font-weight:800;font-size:25px;line-height:1.02;color:#fff;margin-top:4px;text-shadow:0 1px 3px rgba(0,0,0,0.22);">{{ d.name }}</div>
+          </div>
+          <div style="height:58px;background:repeating-linear-gradient(135deg,#EFE7D6,#EFE7D6 7px,#E7DCC6 7px,#E7DCC6 14px);border-bottom:1px solid #E4DAC8;display:flex;align-items:center;justify-content:center;"><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.1em;color:#A0917A;text-transform:uppercase;">{{ t.photo }}</span></div>
+          <div style="padding:13px 15px 16px;">
+            <sc-for list="{{ d.rows }}" as="r" hint-placeholder-count="7">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #F0E8D7;{{ r.rowStyle }}">
+                <span style="font-weight:600;font-size:11.5px;color:#5C5446;{{ r.labelStyle }}">{{ r.label }}</span>
+                <span style="font-weight:700;font-size:11.5px;color:#211C16;font-variant-numeric:tabular-nums;">{{ r.val }}</span>
+              </div>
+            </sc-for>
+            <div style="display:flex;justify-content:space-between;margin-top:11px;gap:8px;">
+              <div style="flex:1;text-align:center;background:#F6ECD7;border:1px solid #E6D6B0;border-radius:9px;padding:7px 4px;"><div style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:0.08em;color:#A0917A;text-transform:uppercase;">{{ t.perHouse }}</div><div style="font-weight:700;font-size:12px;margin-top:2px;">{{ d.houseCost }}</div></div>
+              <div style="flex:1;text-align:center;background:#F6ECD7;border:1px solid #E6D6B0;border-radius:9px;padding:7px 4px;"><div style="font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:0.08em;color:#A0917A;text-transform:uppercase;">{{ t.mortgageLbl }}</div><div style="font-weight:700;font-size:12px;margin-top:2px;">{{ d.mortgage }}</div></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;background:#211C16;color:#FCF8F0;border-radius:10px;padding:9px 13px;margin-top:11px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#C49A48;">{{ t.priceLbl }}</span><span style="font-family:'Playfair Display',serif;font-weight:800;font-size:18px;">{{ d.price }}</span></div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <!-- ============ CHANCE / FATE CARDS ============ -->
+    <div style="display:flex;align-items:baseline;gap:14px;margin-top:62px;">
+      <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:27px;">{{ t.cardsTitle }}</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-weight:500;font-size:11px;color:#A0917A;letter-spacing:0.12em;text-transform:uppercase;">{{ t.cardsSub }}</div>
+    </div>
+    <div style="display:flex;gap:16px;width:max-content;max-width:100%;margin:26px auto 0;">
+      <sc-for list="{{ eventCards }}" as="e" hint-placeholder-count="4">
+        <div style="width:190px;flex:none;background:#FCF8F0;border-radius:16px;overflow:hidden;box-shadow:0 18px 40px rgba(33,28,22,0.2);border:1px solid #E4DAC8;transform:{{ e.tilt }};">
+          <div style="background:{{ e.accent }};padding:15px 17px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-family:'Playfair Display',serif;font-weight:800;font-size:21px;letter-spacing:0.04em;color:{{ e.headText }};">{{ e.title }}</div>
+            <div style="{{ e.iconStyle }}">{{ e.icon }}</div>
+          </div>
+          <div style="padding:20px 18px 22px;display:flex;flex-direction:column;align-items:center;gap:14px;">
+            <div style="width:62px;height:62px;border:2px dashed #D8C8A6;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:8px;letter-spacing:0.08em;color:#A0917A;text-align:center;line-height:1.3;">{{ t.illo }}</div>
+            <div style="text-align:center;font-family:'Playfair Display',serif;font-weight:600;font-size:17px;line-height:1.36;color:#211C16;text-wrap:pretty;">{{ e.body }}</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:500;letter-spacing:0.14em;color:{{ e.tagColor }};text-transform:uppercase;border:1px solid {{ e.tagColor }};border-radius:99px;padding:4px 12px;">{{ e.tag }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1010,&quot;height&quot;:2050},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#C49A48&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;vi&quot;,&quot;en&quot;],&quot;default&quot;:&quot;vi&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;showHouses&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { lang: null };
+  renderVals() {
+    const accent = this.props.accent ?? '#C49A48';
+    const teal = '#2E6E5E';
+    const showHouses = this.props.showHouses ?? true;
+    const lang = this.state.lang ?? this.props.lang ?? 'vi';
+    const L = lang === 'en';
+    const setLang = (l) => this.setState({ lang: l });
+
+    // ---- Board definitions (40 tiles, full city names kept in both languages) ----
+    const D = [
+      { kind:'go', ik:'go', name:L?'GO':'XUẤT PHÁT', sub:L?'Collect ₫2.000':'Nhận ₫2.000' },
+      { kind:'prop', name:'Cà Mau', sub:'₫600', color:'#955436' },
+      { kind:'card', deck:'khi', name:L?'FATE':'KHÍ VẬN', icon:'◆' },
+      { kind:'prop', name:'Pleiku', sub:'₫600', color:'#955436' },
+      { kind:'tax', ik:'coin', name:L?'Income Tax':'Thuế Thu Nhập', sub:L?'Pay ₫2.000':'Trả ₫2.000' },
+      { kind:'rail', ik:'train', name:L?'Sài Gòn Station':'Ga Sài Gòn', sub:'₫2.000' },
+      { kind:'prop', name:'Buôn Ma Thuột', sub:'₫1.000', color:'#86C5E8', hotel:true },
+      { kind:'card', deck:'co', name:L?'CHANCE':'CƠ HỘI', icon:'?' },
+      { kind:'prop', name:'Thái Nguyên', sub:'₫1.000', color:'#86C5E8' },
+      { kind:'prop', name:'Nam Định', sub:'₫1.200', color:'#86C5E8', houses:3 },
+      { kind:'jail', ik:'jail', name:L?'JAIL':'TẠM GIAM', sub:L?'Just visiting':'Chỉ ghé qua' },
+      { kind:'prop', name:'Quy Nhơn', sub:'₫1.400', color:'#D63E96' },
+      { kind:'util', ik:'bolt', name:L?'National Power':'Điện Lực Việt Nam', sub:'₫1.500' },
+      { kind:'prop', name:'Vĩnh Phúc', sub:'₫1.400', color:'#D63E96' },
+      { kind:'prop', name:'Đà Lạt', sub:'₫1.600', color:'#D63E96' },
+      { kind:'rail', ik:'train', name:L?'Đà Nẵng Station':'Ga Đà Nẵng', sub:'₫2.000' },
+      { kind:'prop', name:'Huế', sub:'₫1.800', color:'#F08A24', token:'#B23A2C' },
+      { kind:'card', deck:'khi', name:L?'FATE':'KHÍ VẬN', icon:'◆' },
+      { kind:'prop', name:'Nha Trang', sub:'₫1.800', color:'#F08A24' },
+      { kind:'prop', name:'Vinh', sub:'₫2.000', color:'#F08A24' },
+      { kind:'parking', ik:'parking', name:L?'FREE PARKING':'BÃI ĐỖ XE', sub:L?'Take a break':'Nghỉ chân' },
+      { kind:'prop', name:'Thanh Hóa', sub:'₫2.200', color:'#E03A3A' },
+      { kind:'card', deck:'co', name:L?'CHANCE':'CƠ HỘI', icon:'?' },
+      { kind:'prop', name:'Cần Thơ', sub:'₫2.200', color:'#E03A3A' },
+      { kind:'prop', name:'Bắc Ninh', sub:'₫2.400', color:'#E03A3A' },
+      { kind:'rail', ik:'train', name:L?'Huế Station':'Ga Huế', sub:'₫2.000' },
+      { kind:'prop', name:'Hạ Long', sub:'₫2.600', color:'#F4C430' },
+      { kind:'prop', name:'Đà Nẵng', sub:'₫2.600', color:'#F4C430', token:'#C49A48' },
+      { kind:'util', ik:'drop', name:L?'City Water':'Cấp Nước Sạch', sub:'₫1.500' },
+      { kind:'prop', name:'Vũng Tàu', sub:'₫2.800', color:'#F4C430' },
+      { kind:'tojail', ik:'cuff', name:L?'GO TO JAIL':'VÀO TÙ', sub:null },
+      { kind:'prop', name:'Hải Phòng', sub:'₫3.000', color:'#2BA85A' },
+      { kind:'prop', name:'Biên Hòa', sub:'₫3.000', color:'#2BA85A' },
+      { kind:'card', deck:'khi', name:L?'FATE':'KHÍ VẬN', icon:'◆' },
+      { kind:'prop', name:'Bình Dương', sub:'₫3.200', color:'#2BA85A', token:'#2F8559' },
+      { kind:'rail', ik:'train', name:L?'Hà Nội Station':'Ga Hà Nội', sub:'₫2.000' },
+      { kind:'card', deck:'co', name:L?'CHANCE':'CƠ HỘI', icon:'?' },
+      { kind:'prop', name:'Hà Nội', sub:'₫3.500', color:'#1565A8' },
+      { kind:'tax', ik:'gem', name:L?'Luxury Tax':'Thuế Tài Sản', sub:L?'Pay ₫1.000':'Trả ₫1.000' },
+      { kind:'prop', name:'TP. Hồ Chí Minh', sub:'₫4.000', color:'#1565A8' },
+    ];
+
+    const pos = (i) => {
+      if (i === 0) return { r:11, c:11 };
+      if (i === 10) return { r:11, c:1 };
+      if (i === 20) return { r:1, c:1 };
+      if (i === 30) return { r:1, c:11 };
+      if (i < 10) return { r:11, c:11 - i };
+      if (i < 20) return { r:11 - (i - 10), c:1 };
+      if (i < 30) return { r:1, c:(i - 20) + 1 };
+      return { r:(i - 30) + 1, c:11 };
+    };
+    const sideOf = (i) => {
+      if (i === 0 || i === 10 || i === 20 || i === 30) return 'corner';
+      if (i < 10) return 'bottom';
+      if (i < 20) return 'left';
+      if (i < 30) return 'top';
+      return 'right';
+    };
+
+    const BV = 22, BH = 18;
+    const priceSub = "font-family:'Be Vietnam Pro';font-weight:700;font-size:8.5px;color:#8A7B61;font-variant-numeric:tabular-nums;";
+    const labelSub = "font-family:'Be Vietnam Pro';font-weight:600;font-size:7.5px;letter-spacing:0.04em;color:#9a8a6c;text-transform:uppercase;margin-top:1px;";
+    const propName = "font-family:'Be Vietnam Pro';font-weight:700;font-size:10px;line-height:1.05;letter-spacing:-0.01em;color:#2A241C;";
+    const specName = "font-family:'Be Vietnam Pro';font-weight:700;font-size:9px;line-height:1.08;color:#3A3228;";
+
+    const iconColors = { go:accent, jail:'#2A241C', parking:'#B23A2C', cuff:'#B23A2C', train:'#3A3228', bolt:accent, drop:'#2E80C2', coin:'#C49A48', gem:'#1565A8' };
+
+    const tiles = D.map((d, i) => {
+      const p = pos(i), side = sideOf(i), isProp = d.kind === 'prop';
+      const rot = side === 'left' ? 'rotate(-90deg)' : side === 'top' ? 'rotate(180deg)' : side === 'right' ? 'rotate(90deg)' : 'none';
+      const cBase = "position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4px 3px;gap:1px;transform:" + rot + ";";
+      let band = null, content;
+      if (isProp) {
+        if (side === 'bottom') { band = "position:absolute;top:0;left:0;right:0;height:" + BV + "px;background:" + d.color + ";"; content = cBase + "top:" + BV + "px;left:0;right:0;bottom:0;"; }
+        else if (side === 'top') { band = "position:absolute;bottom:0;left:0;right:0;height:" + BV + "px;background:" + d.color + ";"; content = cBase + "top:0;left:0;right:0;bottom:" + BV + "px;"; }
+        else if (side === 'left') { band = "position:absolute;top:0;bottom:0;right:0;width:" + BH + "px;background:" + d.color + ";"; content = cBase + "top:0;bottom:0;left:0;right:" + BH + "px;"; }
+        else { band = "position:absolute;top:0;bottom:0;left:0;width:" + BH + "px;background:" + d.color + ";"; content = cBase + "top:0;bottom:0;left:" + BH + "px;right:0;"; }
+      } else {
+        content = cBase + "top:0;left:0;right:0;bottom:0;";
+      }
+
+      let nameStyle = propName, subStyle = priceSub, iconStyle = null, bg = '#FBF7EE';
+      if (d.kind === 'go') { nameStyle = "font-family:'Playfair Display',serif;font-weight:800;font-size:13px;line-height:1;color:#2A241C;"; subStyle = labelSub; bg = '#EFE0C4'; }
+      else if (d.kind === 'jail') { nameStyle = "font-family:'Playfair Display',serif;font-weight:800;font-size:13px;line-height:1.02;color:#2A241C;"; subStyle = labelSub; bg = '#EFE0C4'; }
+      else if (d.kind === 'parking') { nameStyle = "font-family:'Playfair Display',serif;font-weight:800;font-size:12px;line-height:1.02;color:#2A241C;"; subStyle = labelSub; bg = '#EFE0C4'; }
+      else if (d.kind === 'tojail') { nameStyle = "font-family:'Playfair Display',serif;font-weight:800;font-size:12.5px;line-height:1.02;color:#B23A2C;"; subStyle = labelSub; bg = '#EFE0C4'; }
+      else if (d.kind === 'rail') { nameStyle = specName; subStyle = priceSub; bg = '#F2EAD9'; }
+      else if (d.kind === 'util') { nameStyle = specName; subStyle = priceSub; bg = '#F2EAD9'; }
+      else if (d.kind === 'tax') { nameStyle = specName; subStyle = labelSub; bg = '#F2EAD9'; }
+      else if (d.kind === 'card') { const a = d.deck === 'co' ? accent : teal; nameStyle = "font-family:'Playfair Display',serif;font-weight:800;font-size:11px;letter-spacing:0.03em;line-height:1;color:" + a + ";"; iconStyle = "font-size:19px;font-weight:800;color:" + a + ";line-height:0.8;margin-bottom:3px;"; bg = d.deck === 'co' ? '#FBF2DE' : '#E7F0EC'; }
+
+      let houses = null;
+      if (showHouses && isProp && side === 'bottom') {
+        if (d.hotel) houses = [{ key:'ht', c:'#B23A2C' }];
+        else if (d.houses) houses = Array.from({ length:d.houses }, (_, k) => ({ key:'h' + k, c:'#2F8559' }));
+      }
+
+      const ik = d.ik;
+      return {
+        key:'t' + i, gr:p.r, gc:p.c, bg, band, content, name:d.name, sub:d.sub || null,
+        icon:d.icon || null, nameStyle, subStyle, iconStyle, houses, token:d.token || null,
+        iconColor: ik ? iconColors[ik] : null,
+        icGo: ik === 'go', icCuff: ik === 'cuff', icPark: ik === 'parking', icJail: ik === 'jail',
+        icTrain: ik === 'train', icBolt: ik === 'bolt', icDrop: ik === 'drop', icCoin: ik === 'coin', icGem: ik === 'gem',
+      };
+    });
+
+    // ---- Title deeds ----
+    const RL = L
+      ? { rent:'Rent', set:'Full group (×2)', h1:'1 house', h2:'2 houses', h3:'3 houses', h4:'4 houses', hotel:'Hotel' }
+      : { rent:'Tiền thuê', set:'Trọn bộ nhóm (×2)', h1:'1 nhà', h2:'2 nhà', h3:'3 nhà', h4:'4 nhà', hotel:'Khách sạn' };
+    const mkRows = (base, set, h1, h2, h3, h4, hotel) => ([
+      { key:'r0', label:RL.rent, val:base },
+      { key:'r1', label:RL.set, val:set, rowStyle:'background:#FBF6EC;margin:0 -15px;padding-left:15px;padding-right:15px;', labelStyle:'color:#9a6a2a;' },
+      { key:'r2', label:RL.h1, val:h1 },
+      { key:'r3', label:RL.h2, val:h2 },
+      { key:'r4', label:RL.h3, val:h3 },
+      { key:'r5', label:RL.h4, val:h4 },
+      { key:'r6', label:RL.hotel, val:hotel, rowStyle:'border-bottom:none;', labelStyle:"font-weight:700;color:#211C16;" },
+    ]);
+    const deeds = [
+      { key:'d1', name:'Hà Nội', group:L?'Elite tier':'Đỉnh cao', color:'#1565A8', price:'₫3.500', houseCost:'₫2.000', mortgage:'₫1.750', rows:mkRows('₫350','₫700','₫1.750','₫5.000','₫11.000','₫13.000','₫15.000') },
+      { key:'d2', name:'Đà Nẵng', group:L?'Premium tier':'Cao cấp', color:'#C99A12', price:'₫2.600', houseCost:'₫1.500', mortgage:'₫1.300', rows:mkRows('₫220','₫440','₫1.100','₫3.300','₫8.000','₫9.750','₫11.500') },
+      { key:'d3', name:'Nha Trang', group:L?'Upper-mid tier':'Khá', color:'#F08A24', price:'₫1.800', houseCost:'₫1.000', mortgage:'₫900', rows:mkRows('₫140','₫280','₫700','₫2.000','₫5.500','₫7.500','₫9.500') },
+      { key:'d4', name:'Đà Lạt', group:L?'Mid-tier':'Trung cấp', color:'#D63E96', price:'₫1.600', houseCost:'₫1.000', mortgage:'₫800', rows:mkRows('₫120','₫240','₫600','₫1.800','₫5.000','₫7.000','₫9.000') },
+    ];
+
+    // ---- Chance / Fate cards ----
+    const coIcon = "width:32px;height:32px;border-radius:50%;border:2px solid #211C16;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-weight:800;font-size:19px;color:#211C16;";
+    const khiIcon = "font-size:18px;color:#FCF8F0;";
+    const eventCards = L ? [
+      { key:'e1', title:'CHANCE', icon:'?', accent:accent, headText:'#211C16', tagColor:'#2E7D5B', tilt:'rotate(-1.5deg)', tag:'Move', body:'Advance to Hà Nội Station. If you pass GO, collect ₫2.000.', iconStyle:coIcon },
+      { key:'e2', title:'CHANCE', icon:'?', accent:accent, headText:'#211C16', tagColor:'#2E7D5B', tilt:'rotate(1deg)', tag:'Collect', body:'The bank pays you an investment dividend. Collect ₫500.', iconStyle:coIcon },
+      { key:'e3', title:'FATE', icon:'◆', accent:teal, headText:'#FCF8F0', tagColor:'#2E7D5B', tilt:'rotate(1.5deg)', tag:'Collect', body:'You win the national lottery. Collect ₫1.000.', iconStyle:khiIcon },
+      { key:'e4', title:'FATE', icon:'◆', accent:teal, headText:'#FCF8F0', tagColor:'#B23A2C', tilt:'rotate(-1deg)', tag:'Penalty', body:'Property tax is due. Pay the bank ₫800.', iconStyle:khiIcon },
+    ] : [
+      { key:'e1', title:'CƠ HỘI', icon:'?', accent:accent, headText:'#211C16', tagColor:'#2E7D5B', tilt:'rotate(-1.5deg)', tag:'Di chuyển', body:'Tiến thẳng đến Ga Hà Nội. Nếu đi qua Ô Xuất Phát, nhận ₫2.000.', iconStyle:coIcon },
+      { key:'e2', title:'CƠ HỘI', icon:'?', accent:accent, headText:'#211C16', tagColor:'#2E7D5B', tilt:'rotate(1deg)', tag:'Nhận tiền', body:'Ngân hàng trả cổ tức đầu tư. Nhận ₫500.', iconStyle:coIcon },
+      { key:'e3', title:'KHÍ VẬN', icon:'◆', accent:teal, headText:'#FCF8F0', tagColor:'#2E7D5B', tilt:'rotate(1.5deg)', tag:'Nhận tiền', body:'Trúng xổ số kiến thiết Thủ Đô. Nhận ₫1.000.', iconStyle:khiIcon },
+      { key:'e4', title:'KHÍ VẬN', icon:'◆', accent:teal, headText:'#FCF8F0', tagColor:'#B23A2C', tilt:'rotate(-1deg)', tag:'Nộp phạt', body:'Đến kỳ đóng thuế nhà đất. Trả cho ngân hàng ₫800.', iconStyle:khiIcon },
+    ];
+
+    // ---- UI strings ----
+    const t = L ? {
+      headerSub:'Board & card artwork · Full place names', language:'Language',
+      boardTitle:'The board', boardSub:'The board · 40 tiles · 8 city groups',
+      note:'Every tile carries the full city name · color groups by value · houses & hotels sit on the band',
+      deedsTitle:'Title deeds', deedsSub:'Rent schedules',
+      cardsTitle:'Chance & Fate cards', cardsSub:'The two event decks',
+      mapLabel:'Vietnam map · art', deckChance:'CHANCE', deckFate:'FATE',
+      photo:'city photo', perHouse:'Per house', mortgageLbl:'Mortgage', priceLbl:'Price', illo:'art',
+    } : {
+      headerSub:'Bàn cờ & thẻ bài · Board & card artwork · Tên thành phố đầy đủ', language:'Ngôn ngữ',
+      boardTitle:'Bàn cờ', boardSub:'The board · 40 ô · 8 nhóm thành phố',
+      note:'Mỗi ô ghi đầy đủ tên thành phố · nhóm màu theo giá trị · nhà & khách sạn hiển thị trên dải màu',
+      deedsTitle:'Thẻ bất động sản', deedsSub:'Title deeds · bảng giá thuê',
+      cardsTitle:'Thẻ Cơ Hội & Khí Vận', cardsSub:'Chance & Fate cards',
+      mapLabel:'bản đồ Việt Nam · map art', deckChance:'CƠ HỘI', deckFate:'KHÍ VẬN',
+      photo:'ảnh thành phố · city photo', perHouse:'Giá mỗi nhà', mortgageLbl:'Thế chấp', priceLbl:'Giá mua', illo:'minh hoạ',
+    };
+
+    const segBase = 'font-weight:700;font-size:12px;padding:7px 14px;border-radius:10px;cursor:pointer;text-align:center;';
+    const on = 'background:#211C16;color:#FCF8F0;', off = 'background:transparent;color:#7A6E5C;';
+    const segVi = segBase + (lang === 'vi' ? on : off);
+    const segEn = segBase + (lang === 'en' ? on : off);
+
+    return { tiles, deeds, eventCards, accent, t, lang, segVi, segEn, setVi:() => setLang('vi'), setEn:() => setLang('en') };
+  }
+}
+</script>
+</body>
+</html>

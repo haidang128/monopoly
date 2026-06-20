@@ -25,6 +25,7 @@ import {
   reduce,
 } from '@monopoly/engine';
 import { track } from '@/services/analytics';
+import { sound } from '@/services/sound';
 import {
   clearPassAndPlay,
   loadPassAndPlay,
@@ -80,7 +81,7 @@ export const usePassAndPlayStore = create<GameStore>((set, get) => ({
   },
 }));
 
-/** Fire analytics for notable transitions, centralized off the dispatch path. */
+/** Fire analytics + SFX for notable transitions, centralized off the dispatch path. */
 function emitDerivedEvents(action: Action, prev: GameState, next: GameState): void {
   if (action.type === 'ROLL' && !prev.dice && next.dice) {
     track({ name: 'first_roll', mode: 'passAndPlay' });
@@ -90,6 +91,15 @@ function emitDerivedEvents(action: Action, prev: GameState, next: GameState): vo
   if (next.phase === 'gameOver' && prev.phase !== 'gameOver') {
     track({ name: 'game_completed', mode: 'passAndPlay', turns: next.turnId });
   }
+
+  // --- sound cues (no-op until assets are registered in services/sound) ---
+  if ((action.type === 'ROLL' || action.type === 'JAIL_ROLL') && next.dice !== prev.dice) {
+    sound.roll();
+  }
+  if (action.type === 'BUY') sound.buy();
+  if ((next.lastCard?.draw ?? 0) !== (prev.lastCard?.draw ?? 0)) sound.card();
+  if (action.type === 'RESPOND_TRADE' && action.accept && !next.pendingTrade) sound.trade();
+  if (next.phase === 'gameOver' && prev.phase !== 'gameOver') sound.win();
 }
 
 // --- selector hooks (subscribe to slices, not the whole store) --------------

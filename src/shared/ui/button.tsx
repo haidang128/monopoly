@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, Text, type ViewStyle } from 'react-native';
 
 import { Brand } from './brand';
+import { Fonts } from './fonts';
 
 type Variant = 'primary' | 'outline';
 
@@ -47,7 +48,7 @@ const styles = StyleSheet.create({
   outline: { borderWidth: 1.5, borderColor: Brand.ink, backgroundColor: 'transparent' },
   pressed: { opacity: 0.85 },
   disabled: { opacity: 0.4 },
-  label: { fontSize: 16, fontWeight: '700' },
+  label: { fontFamily: Fonts.bodyBold, fontSize: 16 },
   labelPrimary: { color: Brand.paper },
   labelOutline: { color: Brand.ink },
 });

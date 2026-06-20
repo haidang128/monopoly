@@ -12,6 +12,8 @@
  */
 import type { GameState } from '@monopoly/engine';
 
+import { createNativeBackend } from './native-backend';
+
 export interface KeyValueBackend {
   getString(key: string): string | null;
   set(key: string, value: string): void;
@@ -34,17 +36,23 @@ function createMemoryBackend(): KeyValueBackend {
 
 let backend: KeyValueBackend = createMemoryBackend();
 
-/**
- * Swap the storage backend. The native build calls this once at startup with an
- * MMKV-backed implementation:
- *
- *   import { MMKV } from 'react-native-mmkv';
- *   const mmkv = new MMKV();
- *   setStorageBackend({ getString: k => mmkv.getString(k) ?? null,
- *                        set: (k,v) => mmkv.set(k,v), delete: k => mmkv.delete(k) });
- */
+/** Swap the storage backend (the platform init below uses this). */
 export function setStorageBackend(next: KeyValueBackend): void {
   backend = next;
+}
+
+let initialized = false;
+
+/**
+ * Promote to the platform's persistent backend (MMKV on native) if available.
+ * Idempotent and safe to call before anything reads prefs/saves. No-ops on web
+ * and in Expo Go (keeps the in-memory backend), so persistence is best-effort.
+ */
+export function initPersistentStorage(): void {
+  if (initialized) return;
+  initialized = true;
+  const native = createNativeBackend();
+  if (native) backend = native;
 }
 
 // --- typed key/value helpers ------------------------------------------------
@@ -109,4 +117,19 @@ export function getSavedLanguage(): string | null {
 }
 export function saveLanguage(lang: string): void {
   setItem(LANG_KEY, lang);
+}
+
+// --- last online room (resume entry on Home) --------------------------------
+
+const LAST_ROOM_KEY = 'online.lastRoom';
+
+/** Remember the room the player is in so Home can offer to rejoin it. */
+export function setLastRoom(code: string): void {
+  setItem(LAST_ROOM_KEY, code.toUpperCase());
+}
+export function getLastRoom(): string | null {
+  return getItem(LAST_ROOM_KEY);
+}
+export function clearLastRoom(): void {
+  removeItem(LAST_ROOM_KEY);
 }

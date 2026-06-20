@@ -1,28 +1,22 @@
+import { type HouseRules } from '@monopoly/engine';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Switch,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { RULE_PRESETS } from '@/features/game/rules/presets';
+import { RulesPicker } from '@/features/game/rules/rules-picker';
 import { useGameActions } from '@/features/game/store/pass-and-play';
 import { haptics } from '@/services/haptics';
-import { formatDong } from '@/shared/lib/format';
 import { Brand } from '@/shared/ui/brand';
 import { Button } from '@/shared/ui/button';
+import { Fonts } from '@/shared/ui/fonts';
 
 /** Distinct token colors; a seat owns one and others can't reuse it. */
 const TOKENS = ['#B23A2C', '#1565A8', '#C49A48', '#2E7D5B', '#E07A1F', '#7A4F9A'];
 /** Friendly default names, filled in seat order. */
 const NAME_POOL = ['An', 'Bình', 'Minh', 'Lan', 'Hùng', 'Mai'];
-const CASH_PRESETS = [10000, 15000, 20000];
 const MAX_PLAYERS = 6;
 const MIN_PLAYERS = 2;
 
@@ -40,9 +34,7 @@ export default function SetupScreen() {
   const { start } = useGameActions();
 
   const [seats, setSeats] = useState<Seat[]>([makeSeat(0), makeSeat(1)]);
-  const [startingCash, setStartingCash] = useState(15000);
-  const [auctionUnbought, setAuctionUnbought] = useState(true);
-  const [freeParkingJackpot, setFreeParkingJackpot] = useState(false);
+  const [rules, setRules] = useState<HouseRules>(() => ({ ...RULE_PRESETS.classic.rules }));
 
   const usedTokens = (exceptId?: string) =>
     new Set(seats.filter((s) => s.id !== exceptId).map((s) => s.token));
@@ -88,7 +80,7 @@ export default function SetupScreen() {
       name: s.name.trim() || NAME_POOL[i] || `P${i + 1}`,
       token: s.token,
     }));
-    start(players, { startingCash, auctionUnbought, freeParkingJackpot });
+    start(players, rules);
     router.replace('/game/local');
   };
 
@@ -143,48 +135,7 @@ export default function SetupScreen() {
 
         {/* house rules */}
         <Text style={styles.sectionLabel}>{t('houseRules')}</Text>
-        <View style={styles.rulesCard}>
-          <Text style={styles.ruleName}>{t('startingCash')}</Text>
-          <View style={styles.segment}>
-            {CASH_PRESETS.map((amount) => {
-              const active = amount === startingCash;
-              return (
-                <Pressable
-                  key={amount}
-                  onPress={() => {
-                    haptics.tap();
-                    setStartingCash(amount);
-                  }}
-                  accessibilityRole="button"
-                  style={[styles.segItem, active && styles.segItemActive]}
-                >
-                  <Text style={[styles.segText, active && styles.segTextActive]}>
-                    {formatDong(amount)}
-                  </Text>
-                </Pressable>
-              );
-            })}
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.toggleRow}>
-            <Text style={styles.ruleName}>{t('auctionRule')}</Text>
-            <Switch
-              value={auctionUnbought}
-              onValueChange={setAuctionUnbought}
-              trackColor={{ true: Brand.green, false: Brand.line }}
-            />
-          </View>
-          <View style={styles.toggleRow}>
-            <Text style={styles.ruleName}>{t('freeParkingRule')}</Text>
-            <Switch
-              value={freeParkingJackpot}
-              onValueChange={setFreeParkingJackpot}
-              trackColor={{ true: Brand.green, false: Brand.line }}
-            />
-          </View>
-        </View>
+        <RulesPicker value={rules} onChange={setRules} />
 
         <View style={styles.actions}>
           <Button label={t('startGame')} onPress={onStart} />
@@ -198,10 +149,10 @@ export default function SetupScreen() {
 const styles = StyleSheet.create({
   root: { flex: 1 },
   content: { padding: 24, gap: 16 },
-  title: { fontSize: 30, fontWeight: '800', color: Brand.ink },
+  title: { fontFamily: Fonts.display, fontSize: 30, color: Brand.ink },
   sectionLabel: {
+    fontFamily: Fonts.monoMedium,
     fontSize: 11,
-    fontWeight: '700',
     letterSpacing: 1,
     textTransform: 'uppercase',
     color: Brand.muted,
@@ -230,10 +181,10 @@ const styles = StyleSheet.create({
     borderColor: Brand.paper,
     boxShadow: '0 2px 5px rgba(33,28,22,0.25)',
   },
-  swatchText: { color: Brand.paper, fontWeight: '800', fontSize: 16 },
-  nameInput: { flex: 1, fontSize: 16, fontWeight: '600', color: Brand.ink, paddingVertical: 6 },
+  swatchText: { fontFamily: Fonts.bodyBlack, color: Brand.paper, fontSize: 16 },
+  nameInput: { fontFamily: Fonts.bodySemi, flex: 1, fontSize: 16, color: Brand.ink, paddingVertical: 6 },
   remove: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
-  removeText: { fontSize: 16, color: Brand.muted, fontWeight: '700' },
+  removeText: { fontFamily: Fonts.bodyBold, fontSize: 16, color: Brand.muted },
   addRow: {
     borderWidth: 1.5,
     borderColor: Brand.line,
@@ -243,30 +194,6 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: 'center',
   },
-  addText: { fontSize: 15, fontWeight: '700', color: Brand.red },
-  rulesCard: {
-    backgroundColor: Brand.paper,
-    borderWidth: 1,
-    borderColor: Brand.line,
-    borderRadius: 16,
-    borderCurve: 'continuous',
-    padding: 14,
-    gap: 12,
-  },
-  ruleName: { fontSize: 15, fontWeight: '600', color: Brand.ink, flexShrink: 1 },
-  segment: {
-    flexDirection: 'row',
-    backgroundColor: Brand.sand,
-    borderRadius: 12,
-    borderCurve: 'continuous',
-    padding: 4,
-    gap: 4,
-  },
-  segItem: { flex: 1, paddingVertical: 9, borderRadius: 9, alignItems: 'center' },
-  segItemActive: { backgroundColor: Brand.ink },
-  segText: { fontSize: 14, fontWeight: '700', color: Brand.muted },
-  segTextActive: { color: Brand.paper },
-  divider: { height: 1, backgroundColor: Brand.line },
-  toggleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
+  addText: { fontFamily: Fonts.bodyBold, fontSize: 15, color: Brand.red },
   actions: { gap: 10, marginTop: 8 },
 });

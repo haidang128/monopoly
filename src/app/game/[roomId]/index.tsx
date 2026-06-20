@@ -1,19 +1,16 @@
-import { Redirect, useLocalSearchParams } from 'expo-router';
+import { Redirect, router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import {
-  BOARD,
-  GROUPS,
-  isOwnable,
-  labelOf,
-  priceOf,
-  type Card,
-} from '@monopoly/engine';
+import { type Card } from '@monopoly/engine';
 import { Board } from '@/features/game/board/board';
 import { Dice } from '@/features/game/board/dice';
 import { EventCardReveal } from '@/features/game/board/event-card';
+import { TileDeed } from '@/features/game/board/tile-deed';
+import { AuctionPanel } from '@/features/game/auction/auction-panel';
+import { DebtPanel } from '@/features/game/debt/debt-panel';
+import { JailPanel } from '@/features/game/jail/jail-panel';
 import { haptics } from '@/services/haptics';
 import {
   useCurrentPlayer,
@@ -24,6 +21,7 @@ import {
 import { formatDong } from '@/shared/lib/format';
 import { Brand } from '@/shared/ui/brand';
 import { Button } from '@/shared/ui/button';
+import { Fonts } from '@/shared/ui/fonts';
 
 /**
  * Game screen: reads authoritative state from the store and dispatches engine
@@ -57,7 +55,6 @@ export default function GameScreen() {
   const me = current?.id ?? '';
   const lastLog = state.log[state.log.length - 1];
   const locale = i18n.language === 'en' ? 'en' : 'vi';
-  const selected = selectedPos != null ? BOARD[selectedPos] : null;
 
   return (
     <>
@@ -78,21 +75,21 @@ export default function GameScreen() {
         ))}
       </View>
 
-      <Board players={state.players} holdings={state.holdings} onTilePress={setSelectedPos} />
+      <Board
+        players={state.players}
+        holdings={state.holdings}
+        locale={locale}
+        onTilePress={(pos) => setSelectedPos((cur) => (cur === pos ? null : pos))}
+      />
 
-      {/* tap-to-inspect detail */}
-      {selected && (
-        <View style={styles.inspect}>
-          <Text style={styles.inspectName}>{labelOf(selected)[locale]}</Text>
-          {isOwnable(selected) && (
-            <Text style={styles.inspectMeta}>
-              {formatDong(priceOf(selected))}
-              {state.holdings[selected.pos] &&
-                ` · ${state.players.find((p) => p.id === state.holdings[selected.pos]!.owner)?.name}`}
-              {selected.kind === 'property' && ` · ${GROUPS[selected.group]?.name[locale]}`}
-            </Text>
-          )}
-        </View>
+      {/* tap-to-inspect title deed */}
+      {selectedPos != null && (
+        <TileDeed
+          state={state}
+          pos={selectedPos}
+          locale={locale}
+          onClose={() => setSelectedPos(null)}
+        />
       )}
 
       {/* turn status */}
@@ -127,30 +124,34 @@ export default function GameScreen() {
         {state.phase === 'turnEnd' && (
           <Button label={t('endTurn')} onPress={() => dispatch({ type: 'END_TURN', player: me })} />
         )}
-        {state.phase === 'jailOptions' && (
-          <Button label={t('rollDice')} onPress={() => dispatch({ type: 'JAIL_ROLL', player: me })} />
-        )}
+        {state.phase === 'jailOptions' && <JailPanel state={state} dispatch={dispatch} />}
         {state.phase === 'mustResolveDebt' && state.debt && (
-          <>
-            <Text style={styles.owe}>
-              {state.debt.from} → {state.debt.to}: {formatDong(state.debt.amount)}
-            </Text>
-            <Button label="Pay" onPress={() => dispatch({ type: 'PAY_DEBT', player: state.debt!.from })} />
-            <Button
-              label="Bankrupt"
-              variant="outline"
-              onPress={() => dispatch({ type: 'DECLARE_BANKRUPTCY', player: state.debt!.from })}
-            />
-          </>
+          <DebtPanel state={state} dispatch={dispatch} />
         )}
         {state.phase === 'auction' && state.auction && (
-          <Button
-            label={t('pass')}
-            onPress={() =>
-              dispatch({ type: 'AUCTION_PASS', player: state.auction!.active[state.auction!.turn]! })
-            }
+          <AuctionPanel
+            key={`${state.auction.turn}-${state.auction.highBid}`}
+            state={state}
+            dispatch={dispatch}
           />
         )}
+        <View style={styles.manageRow}>
+          <Button
+            label={t('assets')}
+            variant="outline"
+            style={styles.flex}
+            onPress={() => router.push('./portfolio')}
+          />
+          {(state.phase === 'preRoll' || state.phase === 'turnEnd' || state.pendingTrade) &&
+            state.players.filter((p) => !p.bankrupt).length > 1 && (
+              <Button
+                label={state.pendingTrade ? t('reviewTrade') : t('trade')}
+                variant="outline"
+                style={styles.flex}
+                onPress={() => router.push('./trade')}
+              />
+            )}
+        </View>
       </View>
       </ScrollView>
 
@@ -179,23 +180,13 @@ const styles = StyleSheet.create({
   chipActive: { borderColor: Brand.gold, borderWidth: 2 },
   chipOut: { opacity: 0.45 },
   token: { width: 18, height: 18, borderRadius: 9 },
-  chipName: { fontSize: 10, fontWeight: '600', color: Brand.ink },
-  chipCash: { fontSize: 11, fontWeight: '700', color: Brand.ink, fontVariant: ['tabular-nums'] },
-  inspect: {
-    borderWidth: 1,
-    borderColor: Brand.line,
-    borderRadius: 12,
-    borderCurve: 'continuous',
-    backgroundColor: Brand.paper,
-    padding: 10,
-    gap: 2,
-  },
-  inspectName: { fontSize: 14, fontWeight: '700', color: Brand.ink },
-  inspectMeta: { fontSize: 12, color: Brand.muted },
+  chipName: { fontFamily: Fonts.bodySemi, fontSize: 10, color: Brand.ink },
+  chipCash: { fontFamily: Fonts.bodyBold, fontSize: 11, color: Brand.ink, fontVariant: ['tabular-nums'] },
   status: { alignItems: 'center', gap: 4 },
-  turnLabel: { fontSize: 18, fontWeight: '800', color: Brand.ink },
-  log: { fontSize: 13, color: Brand.muted, textAlign: 'center' },
-  error: { fontSize: 12, color: Brand.red, textAlign: 'center' },
-  owe: { fontSize: 14, fontWeight: '700', color: Brand.red, textAlign: 'center' },
+  turnLabel: { fontFamily: Fonts.display, fontSize: 18, color: Brand.ink },
+  log: { fontFamily: Fonts.body, fontSize: 13, color: Brand.muted, textAlign: 'center' },
+  error: { fontFamily: Fonts.bodyMedium, fontSize: 12, color: Brand.red, textAlign: 'center' },
   actions: { gap: 10 },
+  manageRow: { flexDirection: 'row', gap: 10 },
+  flex: { flex: 1 },
 });

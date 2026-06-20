@@ -18,10 +18,20 @@ interface ExtraConfig {
 
 const extra = (Constants.expoConfig?.extra ?? {}) as Partial<ExtraConfig>;
 
+/** Coerce to a non-empty string, else null (guards against odd SSR `extra` shapes). */
+function asUrl(value: unknown): string | null {
+  return typeof value === 'string' && value.includes('://') ? value : null;
+}
+
 export const config = {
   env: (extra.appEnv ?? 'development') as AppEnv,
-  /** Convex deployment URL — required once online (Milestone 3) is enabled. */
-  convexUrl: extra.convexUrl ?? null,
+  /**
+   * Convex deployment URL — required once online (Milestone 3) is enabled.
+   * Read `EXPO_PUBLIC_CONVEX_URL` directly: Metro inlines it as a string literal
+   * on every platform (including web SSR), which `Constants.expoConfig.extra`
+   * does not reliably do during static server rendering.
+   */
+  convexUrl: asUrl(process.env.EXPO_PUBLIC_CONVEX_URL) ?? asUrl(extra.convexUrl),
   analyticsKey: extra.analyticsKey ?? null,
   sentryDsn: extra.sentryDsn ?? null,
 } as const;

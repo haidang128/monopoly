@@ -8,9 +8,12 @@
     "scheme": "monopoly",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.haidang128.monopoly",
+      "usesAppleSignIn": true
     },
     "android": {
+      "package": "com.haidang128.monopoly",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -25,6 +28,11 @@
     },
     "plugins": [
       "expo-router",
+      "expo-audio",
+      "expo-localization",
+      "expo-secure-store",
+      "expo-apple-authentication",
+      "@sentry/react-native",
       [
         "expo-splash-screen",
         {

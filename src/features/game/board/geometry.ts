@@ -61,6 +61,35 @@ export function bandEdge(pos: number): Edge | null {
   return null;
 }
 
+/** Which physical edge of the ring a tile sits on (corners are their own case). */
+export type Side = Edge | 'corner';
+
+export function tileSide(pos: number): Side {
+  if (pos === 0 || pos === 10 || pos === 20 || pos === 30) return 'corner';
+  if (EDGES.bottom.includes(pos)) return 'bottom';
+  if (EDGES.left.includes(pos)) return 'left';
+  if (EDGES.top.includes(pos)) return 'top';
+  return 'right';
+}
+
+/**
+ * Rotation (deg) applied to a tile's content so its text faces inward, exactly
+ * like a physical board: each side reads upright to the player sitting there.
+ * Mirrors the design's `rot` per side.
+ */
+export function contentRotation(pos: number): number {
+  switch (tileSide(pos)) {
+    case 'left':
+      return -90;
+    case 'top':
+      return 180;
+    case 'right':
+      return 90;
+    default:
+      return 0;
+  }
+}
+
 /**
  * Grid cell (row, col), each 1..11, for a ring position — the flex-layout twin
  * of the design's `pos()`. Row 1 / col 1 are the top / left, row 11 / col 11 the

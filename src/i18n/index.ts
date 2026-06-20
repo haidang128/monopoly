@@ -1,13 +1,14 @@
 /**
- * i18next setup. Vietnamese is the default (our launch market); the saved
- * preference wins if present. Device-locale detection (expo-localization) is
- * wired in the native build — kept out here so the scaffold runs dependency-free.
+ * i18next setup. Language resolution order: an explicit saved preference wins;
+ * otherwise the device locale (expo-localization) if it's one we support;
+ * otherwise Vietnamese (our launch market).
  *
  * Import this module once for its side effect (e.g. in the root layout), then
  * use `useTranslation()` from react-i18next anywhere, or the `setLanguage`
  * helper to switch + persist.
  */
 /* eslint-disable import/no-named-as-default-member -- i18next's default export is the configured instance; member calls (use/changeLanguage) are intentional */
+import { getLocales } from 'expo-localization';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
@@ -20,11 +21,24 @@ export const SUPPORTED_LANGUAGES = ['vi', 'en'] as const;
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 export const DEFAULT_LANGUAGE: Language = 'vi';
 
+const isSupported = (code: string | null | undefined): code is Language =>
+  !!code && (SUPPORTED_LANGUAGES as readonly string[]).includes(code);
+
+/** Device language (e.g. "vi", "en"), if expo-localization can read one. */
+function deviceLanguage(): string | null {
+  try {
+    return getLocales()[0]?.languageCode ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function initialLanguage(): Language {
   const saved = getSavedLanguage();
-  return saved && (SUPPORTED_LANGUAGES as readonly string[]).includes(saved)
-    ? (saved as Language)
-    : DEFAULT_LANGUAGE;
+  if (isSupported(saved)) return saved;
+  const device = deviceLanguage();
+  if (isSupported(device)) return device;
+  return DEFAULT_LANGUAGE;
 }
 
 if (!i18n.isInitialized) {

@@ -6,7 +6,7 @@
  * reach the board beneath.
  */
 import { useEffect, useRef } from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -17,10 +17,28 @@ import Animated, {
 
 import { BOARD_SIZE, type GameState } from '@monopoly/engine';
 import { Brand } from '@/shared/ui/brand';
+import { Fonts } from '@/shared/ui/fonts';
 
 import { tileCenterFraction } from './geometry';
 
-const DOT = 14;
+const DOT = 18;
+
+/** First letter of a name, for the token face. */
+function initialOf(name: string): string {
+  return name.trim().charAt(0).toUpperCase() || '?';
+}
+
+/** Pick ink/paper text for legibility against the token's fill (perceived luminance). */
+function readableOn(hex: string): string {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!m) return Brand.paper;
+  const n = parseInt(m[1], 16);
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.62 ? Brand.ink : Brand.paper;
+}
 const INSET = 4; // board border (2) + padding (2): grid sits inside this
 const STEP_MS = 90; // per-tile hop while walking the ring
 const JUMP_MS = 280; // straight slide for teleports
@@ -112,9 +130,11 @@ function PlayerToken({
   if (player.bankrupt) return null;
 
   return (
-    <Animated.View
-      style={[styles.token, { backgroundColor: player.token }, animatedStyle]}
-    />
+    <Animated.View style={[styles.token, { backgroundColor: player.token }, animatedStyle]}>
+      <Text style={[styles.initial, { color: readableOn(player.token) }]} numberOfLines={1}>
+        {initialOf(player.name)}
+      </Text>
+    </Animated.View>
   );
 }
 
@@ -128,6 +148,15 @@ const styles = StyleSheet.create({
     borderRadius: DOT / 2,
     borderWidth: 1.5,
     borderColor: Brand.paper,
+    alignItems: 'center',
+    justifyContent: 'center',
     boxShadow: '0 2px 4px rgba(33,28,22,0.4)',
+  },
+  initial: {
+    fontFamily: Fonts.bodyBlack,
+    fontSize: 10,
+    lineHeight: 12,
+    includeFontPadding: false,
+    textAlign: 'center',
   },
 });

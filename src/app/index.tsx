@@ -4,10 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ResumeOnlineCard } from '@/features/game/online/resume-card';
 import { track } from '@/services/analytics';
 import { setLanguage, type Language } from '@/i18n';
 import { Button } from '@/shared/ui/button';
 import { Brand } from '@/shared/ui/brand';
+import { Fonts } from '@/shared/ui/fonts';
 
 export default function HomeScreen() {
   const { t, i18n } = useTranslation();
@@ -36,8 +38,9 @@ export default function HomeScreen() {
       </View>
 
       <View style={styles.actions}>
-        <Button label={t('newGame')} onPress={() => router.push('/setup')} />
-        <Button label={t('joinCode')} variant="outline" onPress={() => router.push('/setup')} />
+        <Button label={t('passAndPlay')} onPress={() => router.push('/setup')} />
+        <Button label={t('playOnline')} variant="outline" onPress={() => router.push('/online')} />
+        <ResumeOnlineCard />
         <Text style={styles.howTo}>{t('howToPlay')} ›</Text>
       </View>
     </SafeAreaView>
@@ -55,7 +58,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     backgroundColor: Brand.paper,
   },
-  langText: { fontSize: 13, fontWeight: '700', color: Brand.ink },
+  langText: { fontFamily: Fonts.bodyBold, fontSize: 13, color: Brand.ink },
   hero: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
   logo: {
     width: 64,
@@ -66,9 +69,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     transform: [{ rotate: '-6deg' }],
   },
-  logoMark: { color: Brand.paper, fontSize: 36, fontWeight: '900' },
-  title: { fontSize: 36, fontWeight: '800', color: Brand.ink, textAlign: 'center' },
-  tagline: { fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', color: Brand.muted },
+  logoMark: { fontFamily: Fonts.displayBlack, color: Brand.paper, fontSize: 36 },
+  title: { fontFamily: Fonts.display, fontSize: 36, color: Brand.ink, textAlign: 'center' },
+  tagline: {
+    fontFamily: Fonts.monoMedium,
+    fontSize: 12,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    color: Brand.muted,
+  },
   actions: { gap: 12 },
-  howTo: { textAlign: 'center', color: Brand.red, fontWeight: '600', marginTop: 6 },
+  howTo: { fontFamily: Fonts.bodySemi, textAlign: 'center', color: Brand.red, marginTop: 6 },
 });

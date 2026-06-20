@@ -1,17 +1,20 @@
 /**
- * The hi-fi 40-tile board. A square (`aspectRatio: 1`) flex layout that mirrors
- * the design's 11×11 CSS grid using flex weights: a 1.5fr perimeter depth, nine
- * 1fr edge tiles per side, 1.5fr corners, and a 9×9 center felt.
+ * The hi-fi 40-tile board, recreating the "Board & Cards" design: a dark wood
+ * frame around an 11×11 grid (1.5fr corners, nine 1fr edge tiles, a 9×9 center),
+ * with the gap color showing through as grid lines. The center carries the two
+ * dashed event-deck markers and the rotated "Cờ Tỷ Phú Việt" logo over a faint
+ * Vietnam-map panel.
  *
  * It receives the authoritative `players` + `holdings` slices and derives the
- * per-tile presentation (who stands where, who owns what) once, then renders
- * pure `TileView`s. Tapping a tile bubbles its position up for the inspector.
+ * per-tile presentation once, then renders pure `TileView`s. Tapping a tile
+ * bubbles its position up for the title-deed inspector.
  */
 import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { BOARD, type GameState } from '@monopoly/engine';
+import { BOARD, type GameState, type Locale } from '@monopoly/engine';
 import { Brand } from '@/shared/ui/brand';
+import { Fonts } from '@/shared/ui/fonts';
 
 import { EDGES } from './geometry';
 import { TileView } from './tile';
@@ -20,10 +23,11 @@ import { Tokens } from './tokens';
 interface BoardProps {
   players: GameState['players'];
   holdings: GameState['holdings'];
+  locale: Locale;
   onTilePress?: (pos: number) => void;
 }
 
-export function Board({ players, holdings, onTilePress }: BoardProps) {
+export function Board({ players, holdings, locale, onTilePress }: BoardProps) {
   const [size, setSize] = useState(0);
 
   const ownerColorByPos = useMemo(() => {
@@ -40,139 +44,179 @@ export function Board({ players, holdings, onTilePress }: BoardProps) {
     const cell = (
       <TileView
         tile={BOARD[pos]}
+        locale={locale}
         ownerColor={ownerColorByPos[pos]}
         houses={holding?.houses}
         mortgaged={holding?.mortgaged}
         onPress={onTilePress ? () => onTilePress(pos) : undefined}
       />
     );
-    return corner ? (
-      <View key={pos} style={styles.corner}>
-        {cell}
-      </View>
-    ) : (
-      // edge tiles are flex:1 via TileView's own root; key on the wrapper-less node
-      <View key={pos} style={styles.edgeSlot}>
+    return (
+      <View key={pos} style={corner ? styles.corner : styles.edgeSlot}>
         {cell}
       </View>
     );
   };
 
+  const chance = locale === 'en' ? 'CHANCE' : 'CƠ HỘI';
+  const fate = locale === 'en' ? 'FATE' : 'KHÍ VẬN';
+
   return (
-    <View
-      style={styles.board}
-      onLayout={(e) => setSize(e.nativeEvent.layout.width)}
-    >
-      {/* top row: free-parking corner · top edge L→R · go-to-jail corner */}
-      <View style={styles.rowEdge}>
-        {renderTile(20, true)}
-        {EDGES.top.map((pos) => renderTile(pos))}
-        {renderTile(30, true)}
-      </View>
-
-      {/* middle band: left column · center felt · right column */}
-      <View style={styles.middle}>
-        <View style={styles.colEdge}>{EDGES.left.map((pos) => renderTile(pos))}</View>
-
-        <View style={styles.center}>
-          <View style={[styles.diagonal, styles.diagTopLeft]}>
-            <Text style={styles.diagText}>KHÍ{'\n'}VẬN</Text>
-          </View>
-          <View style={[styles.diagonal, styles.diagBottomRight]}>
-            <Text style={styles.diagText}>CƠ{'\n'}HỘI</Text>
-          </View>
-          <View style={styles.logo}>
-            <Text style={styles.logoTitle}>CỜ TỶ PHÚ</Text>
-            <Text style={styles.logoSub}>VIỆT NAM</Text>
-          </View>
+    <View style={styles.frame}>
+      <View style={styles.board} onLayout={(e) => setSize(e.nativeEvent.layout.width)}>
+        {/* top row: free-parking corner · top edge L→R · go-to-jail corner */}
+        <View style={styles.rowEdge}>
+          {renderTile(20, true)}
+          {EDGES.top.map((pos) => renderTile(pos))}
+          {renderTile(30, true)}
         </View>
 
-        <View style={styles.colEdge}>{EDGES.right.map((pos) => renderTile(pos))}</View>
-      </View>
+        {/* middle band: left column · center felt · right column */}
+        <View style={styles.middle}>
+          <View style={styles.colEdge}>{EDGES.left.map((pos) => renderTile(pos))}</View>
 
-      {/* bottom row: jail corner · bottom edge L→R · GO corner */}
-      <View style={styles.rowEdge}>
-        {renderTile(10, true)}
-        {EDGES.bottom.map((pos) => renderTile(pos))}
-        {renderTile(0, true)}
-      </View>
+          <View style={styles.center}>
+            {/* faint Vietnam-map panel */}
+            <View style={styles.map}>
+              <Text style={styles.mapLabel}>
+                {locale === 'en' ? 'VIETNAM · MAP' : 'BẢN ĐỒ VIỆT NAM'}
+              </Text>
+            </View>
 
-      {/* animated player pieces, layered above the tiles */}
-      {size > 0 && <Tokens players={players} size={size} />}
+            {/* Cơ Hội deck marker (top-left) */}
+            <View style={[styles.deck, styles.deckChance]}>
+              <View style={styles.deckInner}>
+                <Text style={[styles.deckLabel, { color: '#9a6a2a' }]}>{chance}</Text>
+                <Text style={[styles.deckGlyph, { color: ACCENT }]}>?</Text>
+              </View>
+            </View>
+
+            {/* Khí Vận deck marker (bottom-right) */}
+            <View style={[styles.deck, styles.deckFate]}>
+              <View style={styles.deckInner}>
+                <Text style={[styles.deckLabel, { color: TEAL }]}>{fate}</Text>
+                <View style={styles.deckDiamond} />
+              </View>
+            </View>
+
+            <View style={styles.logo}>
+              <Text style={styles.logoTitle}>CỜ TỶ PHÚ</Text>
+              <Text style={styles.logoSub}>VIỆT NAM</Text>
+            </View>
+          </View>
+
+          <View style={styles.colEdge}>{EDGES.right.map((pos) => renderTile(pos))}</View>
+        </View>
+
+        {/* bottom row: jail corner · bottom edge L→R · GO corner */}
+        <View style={styles.rowEdge}>
+          {renderTile(10, true)}
+          {EDGES.bottom.map((pos) => renderTile(pos))}
+          {renderTile(0, true)}
+        </View>
+
+        {/* animated player pieces, layered above the tiles */}
+        {size > 0 && <Tokens players={players} size={size} />}
+      </View>
     </View>
   );
 }
 
+const ACCENT = Brand.gold;
+const TEAL = '#2E6E5E';
+
 const styles = StyleSheet.create({
+  frame: {
+    backgroundColor: '#1E1913',
+    borderRadius: 16,
+    borderCurve: 'continuous',
+    borderWidth: 1,
+    borderColor: '#0E0B07',
+    padding: 6,
+    boxShadow: '0 18px 44px rgba(33,28,22,0.34)',
+  },
   board: {
     width: '100%',
     aspectRatio: 1,
     flexDirection: 'column',
-    gap: 1,
-    padding: 2,
-    backgroundColor: '#D8CDB6', // sand shows through the 1px gaps as grid lines
-    borderWidth: 2,
-    borderColor: Brand.ink,
+    gap: 1.5,
+    backgroundColor: '#C9BDA4', // shows through the gaps as grid lines
     borderRadius: 10,
     borderCurve: 'continuous',
+    overflow: 'hidden',
   },
-  rowEdge: { flex: 1.5, flexDirection: 'row', gap: 1 },
-  middle: { flex: 9, flexDirection: 'row', gap: 1 },
-  colEdge: { flex: 1.5, flexDirection: 'column', gap: 1 },
+  rowEdge: { flex: 1.5, flexDirection: 'row', gap: 1.5 },
+  middle: { flex: 9, flexDirection: 'row', gap: 1.5 },
+  colEdge: { flex: 1.5, flexDirection: 'column', gap: 1.5 },
   corner: { flex: 1.5 },
   edgeSlot: { flex: 1 },
   center: {
     flex: 9,
-    backgroundColor: '#D7E8D2',
+    backgroundColor: '#E7DAC0',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
-  diagonal: {
+  map: {
     position: 'absolute',
-    width: '33%',
-    height: '33%',
+    top: '13%',
+    left: '13%',
+    right: '13%',
+    bottom: '13%',
+    borderRadius: 10,
+    borderCurve: 'continuous',
+    backgroundColor: '#E2D4B8',
+    borderWidth: 1,
+    borderColor: '#D8C8A6',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 10,
+  },
+  mapLabel: { fontFamily: Fonts.monoMedium, fontSize: 8, letterSpacing: 1.6, color: '#9a8a64' },
+  deck: {
+    position: 'absolute',
+    width: '23%',
+    height: '23%',
     borderWidth: 1.5,
     borderStyle: 'dashed',
-    borderColor: '#95AB8E',
+    borderRadius: 8,
+    borderCurve: 'continuous',
     transform: [{ rotate: '-45deg' }],
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(252,248,240,0.55)',
   },
-  diagTopLeft: { top: '13%', left: '11%' },
-  diagBottomRight: { bottom: '13%', right: '11%' },
-  diagText: {
-    transform: [{ rotate: '45deg' }],
-    fontWeight: '700',
-    fontSize: 7,
-    lineHeight: 8,
-    letterSpacing: 0.4,
-    color: '#5E6E58',
-    textAlign: 'center',
-  },
+  deckChance: { top: '11%', left: '9%', borderColor: ACCENT },
+  deckFate: { bottom: '11%', right: '9%', borderColor: TEAL },
+  deckInner: { transform: [{ rotate: '45deg' }], alignItems: 'center', gap: 3 },
+  deckLabel: { fontFamily: Fonts.display, fontSize: 8, letterSpacing: 0.4 },
+  deckGlyph: { fontFamily: Fonts.displayBlack, fontSize: 18, lineHeight: 18 },
+  deckDiamond: { width: 11, height: 11, backgroundColor: TEAL, transform: [{ rotate: '45deg' }] },
   logo: {
-    transform: [{ rotate: '-38deg' }],
+    transform: [{ rotate: '-32deg' }],
     backgroundColor: Brand.red,
-    borderWidth: 2,
-    borderColor: Brand.ink,
-    borderRadius: 6,
+    borderWidth: 2.5,
+    borderColor: '#1E1913',
+    borderRadius: 8,
     borderCurve: 'continuous',
-    paddingVertical: 5,
-    paddingHorizontal: 13,
+    paddingVertical: 7,
+    paddingHorizontal: 16,
     alignItems: 'center',
-    boxShadow: '0 4px 10px rgba(33,28,22,0.3)',
+    boxShadow: '0 8px 18px rgba(33,28,22,0.38)',
   },
   logoTitle: {
-    fontWeight: '900',
-    fontSize: 18,
-    lineHeight: 18,
+    fontFamily: Fonts.displayBlack,
+    fontSize: 19,
+    lineHeight: 19,
     color: Brand.paper,
     letterSpacing: 0.4,
   },
   logoSub: {
-    fontWeight: '800',
-    fontSize: 7.5,
-    letterSpacing: 2,
+    fontFamily: Fonts.bodyBlack,
+    fontSize: 8,
+    letterSpacing: 3,
     color: '#F1D9A6',
-    marginTop: 2,
+    marginTop: 3,
+    paddingLeft: 3,
   },
 });
