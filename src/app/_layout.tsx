@@ -2,7 +2,7 @@ import { useFonts } from 'expo-font';
 import { Stack, type ErrorBoundaryProps } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -52,18 +52,39 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <GestureHandlerRootView style={styles.flex}>
-      <ConvexClientProvider>
-        <SafeAreaProvider>
-          <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Brand.sand } }} />
-        </SafeAreaProvider>
-      </ConvexClientProvider>
+    <GestureHandlerRootView style={styles.backdrop}>
+      <View style={styles.frame}>
+        <ConvexClientProvider>
+          <SafeAreaProvider>
+            <Stack
+              screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Brand.sand } }}
+            />
+          </SafeAreaProvider>
+        </ConvexClientProvider>
+      </View>
     </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
+  // On web, sit the mobile app in a centered phone-width column over a backdrop;
+  // on native it's a plain full-screen passthrough.
+  backdrop: {
+    flex: 1,
+    ...Platform.select({
+      web: { backgroundColor: '#D9CDB5', alignItems: 'center' },
+      default: {},
+    }),
+  },
+  frame: {
+    flex: 1,
+    width: '100%',
+    ...Platform.select({
+      web: { maxWidth: 440, boxShadow: '0 0 48px rgba(33,28,22,0.18)' },
+      default: {},
+    }),
+  },
   errorRoot: {
     flex: 1,
     alignItems: 'center',

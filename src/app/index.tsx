@@ -57,7 +57,7 @@ export default function HomeScreen() {
             style={StyleSheet.absoluteFill}
             source={require('@/assets/art/hero.png')}
             contentFit="cover"
-            contentPosition="top"
+            contentPosition="bottom"
             transition={300}
           />
           <View style={styles.heroScrim} />
