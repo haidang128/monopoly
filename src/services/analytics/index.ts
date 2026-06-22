@@ -11,6 +11,7 @@
 
 export type AnalyticsEvent =
   | { name: 'app_open' }
+  | { name: 'how_to_play_open' }
   | { name: 'game_started'; mode: 'passAndPlay' | 'online'; players: number }
   | { name: 'first_roll'; mode: 'passAndPlay' | 'online' }
   | { name: 'game_completed'; mode: 'passAndPlay' | 'online'; turns: number }

@@ -41,7 +41,16 @@ export default function HomeScreen() {
         <Button label={t('passAndPlay')} onPress={() => router.push('/setup')} />
         <Button label={t('playOnline')} variant="outline" onPress={() => router.push('/online')} />
         <ResumeOnlineCard />
-        <Text style={styles.howTo}>{t('howToPlay')} ›</Text>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => {
+            track({ name: 'how_to_play_open' });
+            router.push('/how-to-play');
+          }}
+          hitSlop={8}
+        >
+          <Text style={styles.howTo}>{t('howToPlay')} ›</Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
