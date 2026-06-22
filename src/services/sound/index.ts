@@ -20,11 +20,11 @@ export type SoundName = 'roll' | 'buy' | 'card' | 'trade' | 'win';
  * Each value is a Metro asset module id (the return of `require`).
  */
 const ASSETS: Partial<Record<SoundName, number>> = {
-  // roll: require('../../../assets/sounds/roll.mp3'),
-  // buy: require('../../../assets/sounds/buy.mp3'),
-  // card: require('../../../assets/sounds/card.mp3'),
-  // trade: require('../../../assets/sounds/trade.mp3'),
-  // win: require('../../../assets/sounds/win.mp3'),
+  roll: require('../../../assets/sounds/roll.wav'),
+  buy: require('../../../assets/sounds/buy.wav'),
+  card: require('../../../assets/sounds/card.wav'),
+  trade: require('../../../assets/sounds/trade.wav'),
+  win: require('../../../assets/sounds/win.wav'),
 };
 
 const players = new Map<SoundName, AudioPlayer>();

@@ -22,6 +22,7 @@ import { JailPanel } from '@/features/game/jail/jail-panel';
 import { DebtPanel } from '@/features/game/debt/debt-panel';
 import { TileDeed } from '@/features/game/board/tile-deed';
 import { haptics } from '@/services/haptics';
+import { useOnlineSounds } from '@/features/game/online/use-online-sounds';
 import { useOnlineDispatch } from '@/services/convex';
 import { formatDong } from '@/shared/lib/format';
 import { Brand } from '@/shared/ui/brand';
@@ -42,6 +43,7 @@ export function OnlineGame({
   const { t, i18n } = useTranslation();
   const locale = i18n.language === 'en' ? 'en' : 'vi';
   const sendOnline = useOnlineDispatch(code);
+  useOnlineSounds(state);
   const { isWebSocketConnected } = useConvexConnectionState();
   const [error, setError] = useState<string | null>(null);
   const [selectedPos, setSelectedPos] = useState<number | null>(null);
