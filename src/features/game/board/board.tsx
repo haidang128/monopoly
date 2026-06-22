@@ -9,6 +9,7 @@
  * per-tile presentation once, then renders pure `TileView`s. Tapping a tile
  * bubbles its position up for the title-deed inspector.
  */
+import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -76,12 +77,12 @@ export function Board({ players, holdings, locale, onTilePress }: BoardProps) {
           <View style={styles.colEdge}>{EDGES.left.map((pos) => renderTile(pos))}</View>
 
           <View style={styles.center}>
-            {/* faint Vietnam-map panel */}
-            <View style={styles.map}>
-              <Text style={styles.mapLabel}>
-                {locale === 'en' ? 'VIETNAM · MAP' : 'BẢN ĐỒ VIỆT NAM'}
-              </Text>
-            </View>
+            {/* board-center cover art from the new design (assets/art/board-center.png) */}
+            <Image
+              style={StyleSheet.absoluteFill}
+              source={require('@/assets/art/board-center.png')}
+              contentFit="cover"
+            />
 
             {/* Cơ Hội deck marker (top-left) */}
             <View style={[styles.deck, styles.deckChance]}>
@@ -152,27 +153,11 @@ const styles = StyleSheet.create({
   edgeSlot: { flex: 1 },
   center: {
     flex: 9,
-    backgroundColor: '#E7DAC0',
+    backgroundColor: '#EFE3C6',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
-  map: {
-    position: 'absolute',
-    top: '13%',
-    left: '13%',
-    right: '13%',
-    bottom: '13%',
-    borderRadius: 10,
-    borderCurve: 'continuous',
-    backgroundColor: '#E2D4B8',
-    borderWidth: 1,
-    borderColor: '#D8C8A6',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    paddingBottom: 10,
-  },
-  mapLabel: { fontFamily: Fonts.monoMedium, fontSize: 8, letterSpacing: 1.6, color: '#9a8a64' },
   deck: {
     position: 'absolute',
     width: '23%',

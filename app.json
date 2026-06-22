@@ -4,11 +4,11 @@
     "slug": "monopoly",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./icons/ios/icon-1024.png",
     "scheme": "monopoly",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./icons/ios/icon-1024.png",
       "bundleIdentifier": "com.haidang128.monopoly",
       "usesAppleSignIn": true,
       "infoPlist": {
@@ -18,10 +18,9 @@
     "android": {
       "package": "com.haidang128.monopoly",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#1660C8",
+        "foregroundImage": "./icons/android/adaptive-foreground-432.png",
+        "backgroundImage": "./icons/android/adaptive-background-432.png"
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
@@ -33,7 +32,7 @@
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./icons/web/favicon-48.png"
     },
     "plugins": [
       "expo-router",
