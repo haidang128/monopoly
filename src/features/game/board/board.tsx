@@ -64,7 +64,7 @@ export function Board({ players, holdings, locale, onTilePress }: BoardProps) {
 
   return (
     <View style={styles.frame}>
-      <View style={styles.board} onLayout={(e) => setSize(e.nativeEvent.layout.width)}>
+      <View style={styles.board} onLayout={(e) => setSize(Math.round(e.nativeEvent.layout.width))}>
         {/* top row: free-parking corner · top edge L→R · go-to-jail corner */}
         <View style={styles.rowEdge}>
           {renderTile(20, true)}

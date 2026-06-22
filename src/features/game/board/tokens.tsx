@@ -5,10 +5,11 @@
  * straight to the target. The layer is `pointerEvents="none"` so tile taps still
  * reach the board beneath.
  */
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { StyleSheet, Text } from 'react-native';
 import Animated, {
   Easing,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSequence,
@@ -81,6 +82,15 @@ function PlayerToken({
   const x = useSharedValue(0);
   const y = useSharedValue(0);
   const prevPos = useRef<number | undefined>(undefined);
+  // True while a walk/jump is animating, so a board re-measure doesn't snap over it.
+  const animating = useRef(false);
+  // Identifies the current animation so a stale completion callback can't clear
+  // `animating` after a newer move has already started.
+  const walkId = useRef(0);
+
+  const endWalk = useCallback((id: number) => {
+    if (id === walkId.current) animating.current = false;
+  }, []);
 
   useEffect(() => {
     const span = size - 2 * INSET;
@@ -93,15 +103,34 @@ function PlayerToken({
     const target = pxOf(player.position);
     const fromPos = prevPos.current;
 
-    // mount or a size-only change (same tile): snap, no animation
-    if (fromPos === undefined || fromPos === player.position) {
+    // mount: snap into place
+    if (fromPos === undefined) {
       x.value = target.px;
       y.value = target.py;
       prevPos.current = player.position;
       return;
     }
 
+    // Same tile, so this fired from a size change, not a move. Rescale to the new
+    // measurement — but never while walking: on web the board sits in a ScrollView
+    // whose width jitters as a scrollbar toggles between turns, which would
+    // otherwise snap a walking token straight to its destination (the bug this
+    // guard fixes). Native uses overlay scrollbars, so the walk was always fine there.
+    if (fromPos === player.position) {
+      if (animating.current) return;
+      x.value = target.px;
+      y.value = target.py;
+      return;
+    }
+
     prevPos.current = player.position;
+    const id = ++walkId.current;
+    animating.current = true;
+    const done = (finished?: boolean) => {
+      'worklet';
+      if (finished) runOnJS(endWalk)(id);
+    };
+
     const forward = (player.position - fromPos + BOARD_SIZE) % BOARD_SIZE;
 
     if (forward >= 1 && forward <= 12) {
@@ -111,17 +140,17 @@ function PlayerToken({
       for (let s = 1; s <= forward; s++) {
         const stop = pxOf((fromPos + s) % BOARD_SIZE);
         const cfg = { duration: STEP_MS, easing: Easing.inOut(Easing.quad) };
-        xs.push(withTiming(stop.px, cfg));
+        xs.push(withTiming(stop.px, cfg, s === forward ? done : undefined));
         ys.push(withTiming(stop.py, cfg));
       }
       x.value = withSequence(...xs);
       y.value = withSequence(...ys);
     } else {
       // jump (jail, advance-to): slide straight there
-      x.value = withTiming(target.px, { duration: JUMP_MS });
+      x.value = withTiming(target.px, { duration: JUMP_MS }, done);
       y.value = withTiming(target.py, { duration: JUMP_MS });
     }
-  }, [player.position, size, seat, x, y]);
+  }, [player.position, size, seat, endWalk, x, y]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: x.value - DOT / 2 }, { translateY: y.value - DOT / 2 }],
