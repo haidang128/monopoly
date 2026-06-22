@@ -542,6 +542,50 @@ are set.
 2. Create the Sentry project + set the DSN; pick + wire an analytics vendor.
 3. On-device bugfix pass (incl. the M2/M4 QA items), then Android rollout.
 
+## Web deployment — LIVE ✅ (2026-06-22)
+
+The web build (`web.output: "static"`) is deployed to **EAS Hosting** against a
+**production Convex** backend. Full runbook + gotchas live in `deploy.md`.
+
+- **Production web URL:** https://monopoly.expo.app (EAS Hosting, `eas deploy --prod`).
+- **Production Convex:** `accomplished-bass-631`
+  (`https://accomplished-bass-631.convex.cloud`). Auth env vars set on prod:
+  `APPLE_CLIENT_ID`, `JWKS`, `JWT_PRIVATE_KEY` (currently the **same keypair as
+  dev** — rotate before a real launch), `SITE_URL=https://monopoly.expo.app`.
+- **Dev Convex** stays `grand-rooster-185` (region `eu-west-1`) in `.env.local`.
+- **Deploy gotchas (the reason `deploy.md` exists):** `.env.local` overrides inline
+  `VAR=… expo export`, so a prod build must edit `.env.local` (swap to the
+  `accomplished-bass-631` URLs) **and** pass `--clear` — Metro caches the inlined
+  `EXPO_PUBLIC_CONVEX_URL` and otherwise emits a byte-identical stale bundle.
+  Always `grep -rl accomplished-bass-631 dist/_expo/static/js/web/` to verify
+  before deploying, then restore `.env.local` to dev.
+
+### Online bugfixes shipped this session (commit `9ca64f9`)
+- **Rejoin after disconnect/tab-close** (`convex/games.ts` `joinRoom`): the
+  existing-seat lookup now runs **before** the `status !== 'lobby'` guard, so a
+  player holding a seat reconnects to an already-started game. Matches on auth
+  `identityId`, not name. Guest identity persists on web via Convex Auth's
+  `localStorage` token (see `client.tsx`).
+- **Web persistence** (`src/services/storage/native-backend.ts`): the KV seam is
+  now backed by `localStorage` on web (was in-memory → lost on tab close). This
+  restores the Home "Rejoin room {code}" card and saved prefs. Guarded for SSR
+  (`typeof localStorage === 'undefined'` → null → in-memory).
+- **Clearer shared log** (`packages/engine/src/reducer.ts` `applyCard`): card
+  draws now log `"<name> drew Chance/Community: <text>"` instead of bare card
+  text, so the shared one-line notice no longer reads as if it's about whoever is
+  looking. Jail already named the player. Engine reducer runs **both** on-device
+  (pass-and-play) and in Convex (online), so this needed `convex deploy` **and** a
+  web rebuild + `eas deploy --prod`.
+
+### Web known gaps / follow-ups
+- **Apple Sign-In on web unverified** — `expo-apple-authentication` is native-iOS;
+  the web flow differs. Needs explicit testing.
+- **Prod/dev share one JWT keypair** — fine for beta, rotate prod before launch.
+- **Cleared `localStorage` = lost seat** — anonymous identity can't be reclaimed
+  with no account; real accounts (Apple sign-in) would fix this.
+- **Opponents only see the card as a log line**, not the `EventCard` flip
+  animation (that fires for the active player only) — optional polish.
+
 ## Useful commands
 
 ```bash
