@@ -242,7 +242,14 @@ export function reduce(state: GameState, action: Action): GameState {
   const applyCard = (player: Player, card: Card) => {
     // surface the draw so the UI can reveal it; `draw` only ever increments
     draft.lastCard = { card, draw: (draft.lastCard?.draw ?? 0) + 1 };
-    log(card.text.vi, card.text.en);
+    // Prefix with who drew it and from which deck, so the shared log makes clear
+    // the card applies to `player` and not whoever is reading it.
+    const deckVi = card.deck === 'co' ? 'Cơ Hội' : 'Khí Vận';
+    const deckEn = card.deck === 'co' ? 'Chance' : 'Community';
+    log(
+      `${player.name} rút ${deckVi}: ${card.text.vi}`,
+      `${player.name} drew ${deckEn}: ${card.text.en}`,
+    );
     const e = card.effect;
     switch (e.kind) {
       case 'collect':

@@ -170,12 +170,14 @@ export const joinRoom = mutation({
     const userId = await requireUserId(ctx);
     const game = await findByCode(ctx, code);
     if (!game) throw new ConvexError('Room not found');
-    if (game.status !== 'lobby') throw new ConvexError('Game already started');
 
-    // Idempotent rejoin: if this identity already holds a seat, return it.
+    // Idempotent rejoin: if this identity already holds a seat, return it —
+    // even for an already-started game, so a player can reconnect after
+    // closing the tab/app. Must run before the lobby guard below.
     const existing = game.seats.find((s) => s.identityId === userId);
     if (existing) return { code: game.code, playerId: existing.playerId };
 
+    if (game.status !== 'lobby') throw new ConvexError('Game already started');
     if (game.seats.length >= MAX_SEATS) throw new ConvexError('Room is full');
 
     const playerId = `p${game.seats.length + 1}`;
